@@ -19,13 +19,27 @@
                 color: red;
             }
         </style>
+
+        <script src="third_party/three.min.js"></script>
+        <script src="js/controls/OrbitControls.js"></script>
+        <script src="js/jquery-3.1.1.min.js"></script>
+
+
     </head>
 
     <body>
         <div id="containerScene"></div>
-        <script src="third_party/three.min.js"></script>
-        <script src="js/controls/OrbitControls.js"></script>
+
+        
+        <script data-src="Shaders/planet_vertex.js" data-name="planetShader" type="x-shader/x-vertex"></script>
+        <script data-src="Shaders/planet_fragment.js" data-name="planetShader" type="x-shader/x-fragment"></script>
+        
+
+        <script src="js/ShaderLoader.js"></script>
         <script src="js/main.js"></script>
 
     </body>
+
+
+
 </html>

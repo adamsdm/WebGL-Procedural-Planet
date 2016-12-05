@@ -1,26 +1,52 @@
 
 var camera, controls, scene, renderer;
-init();
-animate();
-function init() {
-    scene = new THREE.Scene();
-    renderer = new THREE.WebGLRenderer();
-    
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    
-    var container = document.getElementById( 'containerScene' );
-    container.appendChild( renderer.domElement );
-    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 5000 );
-    camera.position.z = 500;
-    controls = new THREE.OrbitControls( camera, renderer.domElement );
-    //controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
-    controls.enableDamping = true;
-    controls.dampingFactor = 1.0;
-    controls.enableZoom = true;
-    
+var planetShader;
 
-    // WORLD
+
+/* Call stack
++initScene()
+    loadShaders();
+       initWorld();
+animate();
+*/
+
+scene = new THREE.Scene();
+renderer = new THREE.WebGLRenderer();
+
+renderer.setPixelRatio( window.devicePixelRatio );
+renderer.setSize( window.innerWidth, window.innerHeight );
+
+var container = document.getElementById( 'containerScene' );
+container.appendChild( renderer.domElement );
+camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 5000 );
+camera.position.z = 500;
+controls = new THREE.OrbitControls( camera, renderer.domElement );
+//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
+controls.enableDamping = true;
+controls.dampingFactor = 1.0;
+controls.enableZoom = true;
+
+// lights
+light = new THREE.DirectionalLight( 0xffffff );
+light.position.set( 1, 1, 1 );
+scene.add( light );
+light = new THREE.DirectionalLight( 0x002288 );
+light.position.set( -1, -1, -1 );
+scene.add( light );
+light = new THREE.AmbientLight( 0x555555 );
+scene.add( light );
+
+window.addEventListener( 'resize', onWindowResize, false );
+
+
+loadShaders();
+animate();
+
+
+
+
+function initWorld(){
+
     const planetMaterial =
       new THREE.MeshLambertMaterial(
         {
@@ -34,13 +60,11 @@ function init() {
 
 
     const planet = new THREE.Mesh(
-      new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), planetMaterial);
+      new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), planetShader);
 
 
 
     scene.add(planet);
-
-
 
 
     // Stars
@@ -73,23 +97,26 @@ function init() {
         starMesh.updateMatrix();
         scene.add( starMesh );
     }
-
-
-    // lights
-    light = new THREE.DirectionalLight( 0xffffff );
-    light.position.set( 1, 1, 1 );
-    scene.add( light );
-    light = new THREE.DirectionalLight( 0x002288 );
-    light.position.set( -1, -1, -1 );
-    scene.add( light );
-    light = new THREE.AmbientLight( 0x555555 );
-    scene.add( light );
-    //
-    
-    //
-    window.addEventListener( 'resize', onWindowResize, false );
 }
 
+//https://github.com/codecruzer/webgl-shader-loader-js
+function loadShaders(){
+    SHADER_LOADER.load(
+        function (data)
+        {
+            var vShader = data.planetShader.vertex;
+            var fShader = data.planetShader.fragment;
+        
+            planetShader = new THREE.ShaderMaterial({
+                vertexShader:   vShader,
+                fragmentShader: fShader
+            });
+
+            initWorld();
+        }
+
+    );
+}
 
 
 function onWindowResize() {
