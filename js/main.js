@@ -14,8 +14,10 @@ camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight
 camera.position.z = 500;
 controls = new THREE.OrbitControls( camera, renderer.domElement );
 controls.enableDamping = true;
-controls.dampingFactor = 1.0;
+controls.dampingFactor = 0.1;
 controls.enableZoom = true;
+controls.enableRotate = true;
+controls.rotateSpeed = 0.05;
 
 // lights
 light = new THREE.DirectionalLight( 0xffffff );
@@ -23,34 +25,29 @@ light.position.set( 1, 1, 1 );
 scene.add( light );
 
 
-window.addEventListener( 'resize', onWindowResize, false );
 
+window.addEventListener( 'resize', onWindowResize, false );
 
 loadShaders();
 animate();
+displayGUI();
+
+ 
+
 
 
 
 
 function initWorld(){
 
-    const planetMaterial =
-      new THREE.MeshLambertMaterial(
-        {
-          color: 0x00802b,
-        });
-
     // Set up the sphere vars
     const RADIUS = 100;
     const SEGMENTS = 32;
     const RINGS = 32;
 
-
     const planet = new THREE.Mesh(
       new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), planetShader);
-
-
-
+    console.log(planetShader.uniforms.surfaceColor.value);
     scene.add(planet);
 
 
@@ -83,6 +80,7 @@ function initWorld(){
         starMesh.matrixAutoUpdate = false;
         starMesh.updateMatrix();
         scene.add( starMesh );
+
     }
 }
 
@@ -91,19 +89,45 @@ function loadShaders(){
     SHADER_LOADER.load(
         function (data)
         {
-            var vShader = data.planetShader.vertex;
-            var fShader = data.planetShader.fragment;
-        
-            planetShader = new THREE.ShaderMaterial({
-                vertexShader:   vShader,
-                fragmentShader: fShader
-            });
+            var planetVShader = data.planetShader.vertex;
+            var planetFShader = data.planetShader.fragment;            
 
+            planetUniforms = {
+                surfaceColor:   {type: 'v3', value: [0, 0.4, 0.1] },
+                lightPos:       {type: 'v3', value: light.position},
+                cameraPos:      {type: 'v3', value: camera.position}
+            } 
+            planetShader = new THREE.ShaderMaterial({
+                uniforms: planetUniforms,
+                vertexShader:   planetVShader,
+                fragmentShader: planetFShader
+            });
             initWorld();
         }
 
     );
 }
+
+function displayGUI(){
+    var gui = new dat.GUI();
+    
+    var jar;
+
+    //Setup initial values for controls
+    parameters = {
+        a: [0, 102, 25.5]    //surface color
+    }
+    
+    var planetColor = gui.addColor(parameters, 'a').name('Surface Color');
+
+
+
+    planetColor.onChange(function(jar){ 
+        planetUniforms.surfaceColor.value[0] = jar[0]/255;
+        planetUniforms.surfaceColor.value[1] = jar[1]/255;
+        planetUniforms.surfaceColor.value[2] = jar[2]/255;
+    })
+}  
 
 
 function onWindowResize() {

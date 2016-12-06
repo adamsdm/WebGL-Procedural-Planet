@@ -1,9 +1,22 @@
-varying vec2 vUv;
+varying vec3 vNormal;
+varying vec3 pos;
+
+uniform vec3 surfaceColor;
+uniform vec3 lightPos;
+uniform vec3 cameraPos;
+
 
 void main() {
 
-    // colour is RGBA: u, v, 0, 1
-    gl_FragColor = vec4( vec3( vUv, 0. ), 1. );
 
+  vec3 light = normalize(lightPos);
+
+  float kd = 1.0;
+  float ka = 0.1;
+
+  vec3 ambient = ka * surfaceColor;
+  vec3 diffuse = kd * surfaceColor * max(0.0, dot(vNormal, light));
+
+  gl_FragColor = vec4(ambient+diffuse, 1.0);  
 }
 
