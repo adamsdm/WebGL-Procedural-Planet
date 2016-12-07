@@ -21,7 +21,7 @@ controls.rotateSpeed = 0.05;
 
 // lights
 light = new THREE.DirectionalLight( 0xffffff );
-light.position.set( 1, 1, 1 );
+light.position.set( 1000, 1000, 1000 );
 scene.add( light );
 
 
@@ -82,6 +82,14 @@ function initWorld(){
         scene.add( starMesh );
 
     }
+
+
+    var sunMaterial = new THREE.MeshBasicMaterial();
+
+    var sun = new THREE.Mesh(
+      new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), sunMaterial);
+    sun.position.set(1000.0, 1000.0, 1000.0);
+    scene.add(sun);
 }
 
 //https://github.com/codecruzer/webgl-shader-loader-js
