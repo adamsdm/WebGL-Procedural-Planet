@@ -28,6 +28,19 @@ scene.add( light );
 
 window.addEventListener( 'resize', onWindowResize, false );
 
+
+//Initialize uniforms
+var uniforms = {
+        planetUniforms : {
+        surfaceColor:   {type: 'v3', value: [0, 0.4, 0.1] },
+        lightPos:       {type: 'v3', value: light.position},
+        cameraPos:      {type: 'v3', value: camera.position}
+    }    
+}
+
+
+
+
 loadShaders();
 animate();
 displayGUI();
@@ -47,7 +60,6 @@ function initWorld(){
 
     const planet = new THREE.Mesh(
       new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), planetShader);
-    console.log(planetShader.uniforms.surfaceColor.value);
     scene.add(planet);
 
 
@@ -88,7 +100,7 @@ function initWorld(){
 
     var sun = new THREE.Mesh(
       new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), sunMaterial);
-    sun.position.set(1000.0, 1000.0, 1000.0);
+    sun.position.set(1000.0, 1000.0, 1000.0); //Set position the same as the light position
     scene.add(sun);
 }
 
@@ -100,13 +112,9 @@ function loadShaders(){
             var planetVShader = data.planetShader.vertex;
             var planetFShader = data.planetShader.fragment;            
 
-            planetUniforms = {
-                surfaceColor:   {type: 'v3', value: [0, 0.4, 0.1] },
-                lightPos:       {type: 'v3', value: light.position},
-                cameraPos:      {type: 'v3', value: camera.position}
-            } 
+
             planetShader = new THREE.ShaderMaterial({
-                uniforms: planetUniforms,
+                uniforms: uniforms.planetUniforms,
                 vertexShader:   planetVShader,
                 fragmentShader: planetFShader
             });
@@ -118,22 +126,25 @@ function loadShaders(){
 
 function displayGUI(){
     var gui = new dat.GUI();
-    
     var jar;
+
 
     //Setup initial values for controls
     parameters = {
-        a: [0, 102, 25.5]    //surface color
+        surClr: [uniforms.planetUniforms.surfaceColor.value[0]*255,     //surface color, *255 because dat.gui colors in color range 0-255,
+                 uniforms.planetUniforms.surfaceColor.value[1]*255,
+                 uniforms.planetUniforms.surfaceColor.value[2]*255 ]
+
     }
     
-    var planetColor = gui.addColor(parameters, 'a').name('Surface Color');
+    var planetColor = gui.addColor(parameters, 'surClr').name('Surface Color');
 
 
 
     planetColor.onChange(function(jar){ 
-        planetUniforms.surfaceColor.value[0] = jar[0]/255;
-        planetUniforms.surfaceColor.value[1] = jar[1]/255;
-        planetUniforms.surfaceColor.value[2] = jar[2]/255;
+        uniforms.planetUniforms.surfaceColor.value[0] = jar[0]/255;
+        uniforms.planetUniforms.surfaceColor.value[1] = jar[1]/255;
+        uniforms.planetUniforms.surfaceColor.value[2] = jar[2]/255;
     })
 }  
 
