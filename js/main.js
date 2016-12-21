@@ -32,10 +32,12 @@ window.addEventListener( 'resize', onWindowResize, false );
 //Initialize uniforms
 var uniforms = {
         planetUniforms : {
-        surfaceColor:   {type: 'v3', value: [0, 0.4, 0.1] },
-        lightPos:       {type: 'v3', value: light.position},
-        cameraPos:      {type: 'v3', value: camera.position}
-    }    
+            surfaceColor:   {type: 'v3', value: [0, 0.4, 0.1] },
+            mountFreq:      {type: 'f', value: 0.02 },
+            mountAmp:      {type: 'f', value: 50.0 },
+            lightPos:       {type: 'v3', value: light.position},
+            cameraPos:      {type: 'v3', value: camera.position}
+        }    
 }
 
 
@@ -111,12 +113,12 @@ function loadShaders(){
         {
             var planetVShader = data.planetShader.vertex;
             var planetFShader = data.planetShader.fragment;            
-
+            var classicNoise3D = data.perlinNoise.vertex;
 
             planetShader = new THREE.ShaderMaterial({
                 uniforms: uniforms.planetUniforms,
-                vertexShader:   planetVShader,
-                fragmentShader: planetFShader
+                vertexShader:   classicNoise3D + planetVShader,
+                fragmentShader: classicNoise3D + planetFShader
             });
             initWorld();
         }
@@ -133,18 +135,30 @@ function displayGUI(){
     parameters = {
         surClr: [uniforms.planetUniforms.surfaceColor.value[0]*255,     //surface color, *255 because dat.gui colors in color range 0-255,
                  uniforms.planetUniforms.surfaceColor.value[1]*255,
-                 uniforms.planetUniforms.surfaceColor.value[2]*255 ]
+                 uniforms.planetUniforms.surfaceColor.value[2]*255 ],
+        mountFreq: uniforms.planetUniforms.mountFreq.value,
+        mountAmp: uniforms.planetUniforms.mountAmp.value,
+
 
     }
     
     var planetColor = gui.addColor(parameters, 'surClr').name('Surface Color');
-
+    var mountainFrequency = gui.add(parameters, 'mountFreq').min(0).max(0.05).step(0.001).name('Mount freq');
+    var mountainAmplitide = gui.add(parameters, 'mountAmp').min(0).max(100).step(0.01).name('Mount amp');
 
 
     planetColor.onChange(function(jar){ 
         uniforms.planetUniforms.surfaceColor.value[0] = jar[0]/255;
         uniforms.planetUniforms.surfaceColor.value[1] = jar[1]/255;
         uniforms.planetUniforms.surfaceColor.value[2] = jar[2]/255;
+    })
+
+    mountainFrequency.onChange(function(jar){ 
+        uniforms.planetUniforms.mountFreq.value = jar;
+    })
+
+    mountainAmplitide.onChange(function(jar){ 
+        uniforms.planetUniforms.mountAmp.value = jar;
     })
 }  
 
