@@ -8,11 +8,11 @@ varying float noise;
 
 void main() {
 
-	noise = pnoise(position*mountFreq, vec3(10.0));
+	noise = mountAmp*pnoise(mountFreq*position+vec3(0.2, 0.34, 0.52), vec3(100.0));
 
     vNormal = normal;
    	
-    pos =  position+ mountAmp*noise*vNormal;
+    pos =  position + noise*vNormal;
     
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );

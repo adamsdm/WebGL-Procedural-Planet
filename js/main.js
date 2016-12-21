@@ -11,7 +11,7 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 var container = document.getElementById( 'containerScene' );
 container.appendChild( renderer.domElement );
 camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 5000 );
-camera.position.z = 500;
+camera.position.z = 300;
 controls = new THREE.OrbitControls( camera, renderer.domElement );
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
@@ -32,12 +32,19 @@ window.addEventListener( 'resize', onWindowResize, false );
 //Initialize uniforms
 var uniforms = {
         planetUniforms : {
-            surfaceColor:   {type: 'v3', value: [0, 0.4, 0.1] },
-            mountFreq:      {type: 'f', value: 0.02 },
-            mountAmp:      {type: 'f', value: 50.0 },
+            surfaceColor:   {type: 'v3',    value: [0, 0.4, 0.1] },
+            mountFreq:      {type: 'f',     value: 0.04 },
+            mountAmp:       {type: 'f',     value: 15.0 },
+            lightPos:       {type: 'v3',    value: light.position},
+            cameraPos:      {type: 'v3',    value: camera.position},
+            oceanLevel:     {type: 'f',     value: 1.0}
+        },
+
+        oceanUniforms : {
             lightPos:       {type: 'v3', value: light.position},
-            cameraPos:      {type: 'v3', value: camera.position}
-        }    
+            cameraPos:      {type: 'v3', value: camera.position},
+            oceanLevel:     {type: 'f', value: 1.0}
+        } 
 }
 
 
@@ -57,12 +64,18 @@ function initWorld(){
 
     // Set up the sphere vars
     const RADIUS = 100;
-    const SEGMENTS = 32;
-    const RINGS = 32;
+    const SEGMENTS = 128;
+    const RINGS = 128;
 
     const planet = new THREE.Mesh(
       new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), planetShader);
     scene.add(planet);
+
+    //Ocean 
+    
+    const ocean = new THREE.Mesh(
+      new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), oceanShader);
+    scene.add(ocean);
 
 
     // Stars
@@ -112,7 +125,11 @@ function loadShaders(){
         function (data)
         {
             var planetVShader = data.planetShader.vertex;
-            var planetFShader = data.planetShader.fragment;            
+            var planetFShader = data.planetShader.fragment;   
+
+            var oceanVShader = data.oceanShader.vertex;
+            var oceanFShader = data.oceanShader.fragment;
+
             var classicNoise3D = data.perlinNoise.vertex;
 
             planetShader = new THREE.ShaderMaterial({
@@ -120,6 +137,18 @@ function loadShaders(){
                 vertexShader:   classicNoise3D + planetVShader,
                 fragmentShader: classicNoise3D + planetFShader
             });
+            planetShader.extensions = { derivatives: true};
+
+            oceanShader = new THREE.ShaderMaterial({
+                uniforms: uniforms.oceanUniforms,
+                vertexShader:   classicNoise3D + oceanVShader,
+                fragmentShader: classicNoise3D + oceanFShader,
+                transparent: true,
+                
+
+            });
+            oceanShader.derivatives = true;
+
             initWorld();
         }
 
@@ -143,8 +172,8 @@ function displayGUI(){
     }
     
     var planetColor = gui.addColor(parameters, 'surClr').name('Surface Color');
-    var mountainFrequency = gui.add(parameters, 'mountFreq').min(0).max(0.05).step(0.001).name('Mount freq');
-    var mountainAmplitide = gui.add(parameters, 'mountAmp').min(0).max(100).step(0.01).name('Mount amp');
+    var mountainFrequency = gui.add(parameters, 'mountFreq').min(0.02).max(0.05).step(0.001).name('Mount freq');
+    var mountainAmplitide = gui.add(parameters, 'mountAmp').min(2.0).max(30).step(0.01).name('Mount amp');
 
 
     planetColor.onChange(function(jar){ 
