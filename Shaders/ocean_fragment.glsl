@@ -33,7 +33,7 @@ void main() {
   	vec3 finalColor = ambient+diffuse+specular;
 
 
-  	gl_FragColor = vec4(finalColor, 1.0); 
+  	gl_FragColor = vec4(finalColor, 0.8); 
   	
 }
 

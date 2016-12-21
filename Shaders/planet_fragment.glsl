@@ -5,13 +5,14 @@ varying float noise;
 uniform vec3 surfaceColor;
 uniform vec3 lightPos;
 uniform vec3 cameraPos;
+uniform vec3 shoreColor;
 
 
 
 void main() {
 
-	 vec3 darkerSurfColor = vec3(1.0, 1.0, 1.0);
-   vec3 sandColor = vec3(0.956863, 0.666667, 0.258824);
+	 vec3 snowColor = vec3(0.8, 0.9, 1.0);
+   vec3 sandColor = shoreColor;
    vec3 light = normalize(lightPos);
 
 
@@ -23,9 +24,9 @@ void main() {
 
   	vec3 finalColor = ambient+diffuse;
 
-  	finalColor=mix(finalColor, darkerSurfColor, smoothstep(7.0, 15.0, noise));
-    finalColor=mix(sandColor, finalColor, smoothstep(0.0, 3.0, noise));
-  	finalColor=finalColor-0.04*pnoise(1.0*pos, vec3(10.0));
+  	finalColor=mix(finalColor, snowColor, smoothstep(7.0, 15.0, noise));   // Snow on peaks
+    finalColor=mix(sandColor, finalColor, smoothstep(0.0, 3.0, noise));    // Sandy shores
+  	finalColor=finalColor-0.04*pnoise(1.0*pos, vec3(10.0));                // Low freq noise
 
   	gl_FragColor = vec4(finalColor, 1.0);  
   	

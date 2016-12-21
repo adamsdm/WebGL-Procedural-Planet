@@ -29,10 +29,12 @@ scene.add( light );
 window.addEventListener( 'resize', onWindowResize, false );
 
 
-//Initialize uniforms
+// Initialize uniforms
 var uniforms = {
+
         planetUniforms : {
             surfaceColor:   {type: 'v3',    value: [0, 0.4, 0.1] },
+            shoreColor:     {type: 'v3',    value: [0.95, 0.67, 0.26] },
             mountFreq:      {type: 'f',     value: 0.04 },
             mountAmp:       {type: 'f',     value: 15.0 },
             lightPos:       {type: 'v3',    value: light.position},
@@ -46,8 +48,6 @@ var uniforms = {
             oceanLevel:     {type: 'f', value: 1.0}
         } 
 }
-
-
 
 
 loadShaders();
@@ -98,12 +98,6 @@ function initWorld(){
         starMesh.position.y = r * Math.sin(theta)*Math.sin(phi);
         starMesh.position.z = r * Math.cos(theta);
 
-        /*
-        mesh.position.x = 2000 * ( 2.0 * Math.random() - 1.0 );
-        mesh.position.y = 2000 * ( 2.0 * Math.random() - 1.0 );
-        mesh.position.z = 2000 * ( 2.0 * Math.random() - 1.0 );
-        */
-
         starMesh.matrixAutoUpdate = false;
         starMesh.updateMatrix();
         scene.add( starMesh );
@@ -137,17 +131,14 @@ function loadShaders(){
                 vertexShader:   classicNoise3D + planetVShader,
                 fragmentShader: classicNoise3D + planetFShader
             });
-            planetShader.extensions = { derivatives: true};
 
             oceanShader = new THREE.ShaderMaterial({
                 uniforms: uniforms.oceanUniforms,
                 vertexShader:   classicNoise3D + oceanVShader,
                 fragmentShader: classicNoise3D + oceanFShader,
                 transparent: true,
-                
-
             });
-            oceanShader.derivatives = true;
+
 
             initWorld();
         }
