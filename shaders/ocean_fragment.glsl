@@ -37,7 +37,7 @@ void main() {
     finalColor=finalColor+0.2*waveNoise;                
     
 
-  	gl_FragColor = vec4(finalColor, 1.0); 
+  	gl_FragColor = vec4(finalColor, 0.7); 
   	
 }
 

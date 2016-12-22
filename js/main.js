@@ -85,6 +85,10 @@ function initWorld(){
       new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), oceanShader);
     scene.add(ocean);
 
+    const atmos = new THREE.Mesh(
+      new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), atmosShader);
+    scene.add(atmos);
+
 
     // Stars
     var numberOfStars = 1000;
@@ -132,6 +136,9 @@ function loadShaders(){
             var oceanVShader = data.oceanShader.vertex;
             var oceanFShader = data.oceanShader.fragment;
 
+            var atmosVShader = data.atmosShader.vertex;
+            var atmosFShader = data.atmosShader.fragment;
+
             var classicNoise3D = data.perlinNoise.vertex;
 
             planetShader = new THREE.ShaderMaterial({
@@ -145,6 +152,13 @@ function loadShaders(){
                 uniforms: oceanUniforms,
                 vertexShader:   classicNoise3D + oceanVShader,
                 fragmentShader: classicNoise3D + oceanFShader,
+                transparent: true,
+            });
+
+            atmosShader = new THREE.ShaderMaterial({
+                uniforms: oceanUniforms,
+                vertexShader:   classicNoise3D + atmosVShader,
+                fragmentShader: classicNoise3D + atmosFShader,
                 transparent: true,
             });
 
