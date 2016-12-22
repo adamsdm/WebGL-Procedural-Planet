@@ -86,7 +86,7 @@ function initWorld(){
     scene.add(ocean);
 
     const atmos = new THREE.Mesh(
-      new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), atmosShader);
+      new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), cloudsShader);
     scene.add(atmos);
 
 
@@ -136,8 +136,8 @@ function loadShaders(){
             var oceanVShader = data.oceanShader.vertex;
             var oceanFShader = data.oceanShader.fragment;
 
-            var atmosVShader = data.atmosShader.vertex;
-            var atmosFShader = data.atmosShader.fragment;
+            var cloudsVShader = data.cloudsShader.vertex;
+            var cloudsFShader = data.cloudsShader.fragment;
 
             var classicNoise3D = data.perlinNoise.vertex;
 
@@ -155,10 +155,10 @@ function loadShaders(){
                 transparent: true,
             });
 
-            atmosShader = new THREE.ShaderMaterial({
+            cloudsShader = new THREE.ShaderMaterial({
                 uniforms: oceanUniforms,
-                vertexShader:   classicNoise3D + atmosVShader,
-                fragmentShader: classicNoise3D + atmosFShader,
+                vertexShader:   classicNoise3D + cloudsVShader,
+                fragmentShader: classicNoise3D + cloudsFShader,
                 transparent: true,
             });
 

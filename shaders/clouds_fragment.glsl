@@ -23,9 +23,11 @@ void main() {
     
 
     float cloudsNoise = pnoise(0.02*pos + vec3(0.4, 0.26, 0.66)*0.1*time, vec3(10.0));
-    cloudsNoise = max(0.0,cloudsNoise);
-    cloudsNoise = smoothstep(0.2, 0.25, cloudsNoise);
+    float cloudsNoise2 = 0.5+0.5*pnoise(0.5*pos, vec3(10.0));
 
+    cloudsNoise -= 0.2*cloudsNoise2;                    // Add high freq noise on edge
+    cloudsNoise = smoothstep(0.2, 0.25, cloudsNoise);   // Thresholding low freq noise 
+    cloudsNoise -= 0.7*cloudsNoise2;                    // add noise to cloudsNoise
 
   	gl_FragColor = vec4(finalColor, cloudsNoise); 
   	
