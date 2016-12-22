@@ -1,9 +1,11 @@
 
 var camera, controls, scene, renderer;
 var planetShader;
+var startTime = new Date().getTime();
+var runTime = 0;
 
 scene = new THREE.Scene();
-renderer = new THREE.WebGLRenderer();
+renderer = new THREE.WebGLRenderer({ antialias: true });
 
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -14,7 +16,7 @@ camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight
 camera.position.z = 300;
 controls = new THREE.OrbitControls( camera, renderer.domElement );
 controls.enableDamping = true;
-controls.dampingFactor = 0.1;
+controls.dampingFactor = 0.05;
 controls.enableZoom = true;
 controls.enableRotate = true;
 controls.rotateSpeed = 0.05;
@@ -30,24 +32,30 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 
 // Initialize uniforms
-var uniforms = {
 
-        planetUniforms : {
-            surfaceColor:   {type: 'v3',    value: [0, 0.4, 0.1] },
-            shoreColor:     {type: 'v3',    value: [0.95, 0.67, 0.26] },
-            mountFreq:      {type: 'f',     value: 0.04 },
-            mountAmp:       {type: 'f',     value: 15.0 },
-            lightPos:       {type: 'v3',    value: light.position},
-            cameraPos:      {type: 'v3',    value: camera.position},
-            oceanLevel:     {type: 'f',     value: 1.0}
-        },
-
-        oceanUniforms : {
-            lightPos:       {type: 'v3', value: light.position},
-            cameraPos:      {type: 'v3', value: camera.position},
-            oceanLevel:     {type: 'f', value: 1.0}
-        } 
+var sharedUniforms = {
+    lightPos:       {type: 'v3',    value: light.position},
+    cameraPos:      {type: 'v3',    value: camera.position},
+    oceanLevel:     {type: 'f',     value: 1.0},
+    time:           {type: 'f',     value: 0.0}
 }
+
+// combines shared uniforms with new and store in new object
+var planetUniforms = Object.assign({}, sharedUniforms, 
+    {
+        surfaceColor:   {type: 'v3',    value: [0, 0.4, 0.1] },
+        shoreColor:     {type: 'v3',    value: [0.95, 0.67, 0.26] },
+        mountFreq:      {type: 'f',     value: 0.04 },
+        mountAmp:       {type: 'f',     value: 15.0 } 
+    }
+);
+
+var oceanUniforms = Object.assign({}, sharedUniforms, 
+    {
+        oceanLevel:     {type: 'f', value: 1.0},
+    }
+);
+
 
 
 loadShaders();
@@ -127,13 +135,14 @@ function loadShaders(){
             var classicNoise3D = data.perlinNoise.vertex;
 
             planetShader = new THREE.ShaderMaterial({
-                uniforms: uniforms.planetUniforms,
+                uniforms: planetUniforms,
                 vertexShader:   classicNoise3D + planetVShader,
-                fragmentShader: classicNoise3D + planetFShader
+                fragmentShader: classicNoise3D + planetFShader,
             });
 
+
             oceanShader = new THREE.ShaderMaterial({
-                uniforms: uniforms.oceanUniforms,
+                uniforms: oceanUniforms,
                 vertexShader:   classicNoise3D + oceanVShader,
                 fragmentShader: classicNoise3D + oceanFShader,
                 transparent: true,
@@ -153,11 +162,11 @@ function displayGUI(){
 
     //Setup initial values for controls
     parameters = {
-        surClr: [uniforms.planetUniforms.surfaceColor.value[0]*255,     //surface color, *255 because dat.gui colors in color range 0-255,
-                 uniforms.planetUniforms.surfaceColor.value[1]*255,
-                 uniforms.planetUniforms.surfaceColor.value[2]*255 ],
-        mountFreq: uniforms.planetUniforms.mountFreq.value,
-        mountAmp: uniforms.planetUniforms.mountAmp.value,
+        surClr: [planetUniforms.surfaceColor.value[0]*255,     //surface color, *255 because dat.gui colors in color range 0-255,
+                 planetUniforms.surfaceColor.value[1]*255,
+                 planetUniforms.surfaceColor.value[2]*255 ],
+        mountFreq: planetUniforms.mountFreq.value,
+        mountAmp: planetUniforms.mountAmp.value,
 
 
     }
@@ -168,17 +177,17 @@ function displayGUI(){
 
 
     planetColor.onChange(function(jar){ 
-        uniforms.planetUniforms.surfaceColor.value[0] = jar[0]/255;
-        uniforms.planetUniforms.surfaceColor.value[1] = jar[1]/255;
-        uniforms.planetUniforms.surfaceColor.value[2] = jar[2]/255;
+        planetUniforms.surfaceColor.value[0] = jar[0]/255;
+        planetUniforms.surfaceColor.value[1] = jar[1]/255;
+        planetUniforms.surfaceColor.value[2] = jar[2]/255;
     })
 
     mountainFrequency.onChange(function(jar){ 
-        uniforms.planetUniforms.mountFreq.value = jar;
+        planetUniforms.mountFreq.value = jar;
     })
 
     mountainAmplitide.onChange(function(jar){ 
-        uniforms.planetUniforms.mountAmp.value = jar;
+        planetUniforms.mountAmp.value = jar;
     })
 }  
 
@@ -192,6 +201,9 @@ function onWindowResize() {
 
 function animate() {
     requestAnimationFrame( animate );
+    runTime = (new Date().getTime() - startTime)/1000;
+    sharedUniforms.time.value = runTime;
+    
     controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
     render();
 }

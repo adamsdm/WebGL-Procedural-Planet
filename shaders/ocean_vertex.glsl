@@ -1,13 +1,14 @@
 
 varying vec3 vNormal;
 varying vec3 pos;
-varying float noise;
+
+uniform float time;
 
 void main() {
 
 	vNormal = normal;
-	pos = position;
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+	pos = position;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
 
 }

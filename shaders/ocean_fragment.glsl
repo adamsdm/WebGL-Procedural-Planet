@@ -1,7 +1,7 @@
 varying vec3 vNormal;
 varying vec3 pos;
-varying float noise;
 
+uniform float time;
 uniform vec3 lightPos;
 uniform vec3 cameraPos;
 
@@ -29,11 +29,23 @@ void main() {
     vec3 specular = ks*(pow(RdotV, shinyness))*lightColor;
 
 
-
   	vec3 finalColor = ambient+diffuse+specular;
+    //vec3 finalColor = vec3(0.5,0.5,0.5);
 
+    float waveNoise = pnoise(0.5*pos + vec3(0.4, 0.26, 0.66)*time, vec3(10.0));
 
-  	gl_FragColor = vec4(finalColor, 0.8); 
+    finalColor=finalColor+0.2*waveNoise;                
+    
+
+  	gl_FragColor = vec4(finalColor, 1.0); 
   	
 }
+
+
+
+
+
+
+
+
 

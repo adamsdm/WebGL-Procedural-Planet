@@ -11,24 +11,23 @@ uniform vec3 shoreColor;
 
 void main() {
 
-	 vec3 snowColor = vec3(0.8, 0.9, 1.0);
-   vec3 sandColor = shoreColor;
-   vec3 light = normalize(lightPos);
+	vec3 snowColor = vec3(0.8, 0.9, 1.0);
+  vec3 sandColor = shoreColor;
+  vec3 light = normalize(lightPos);
 
+  float kd = 1.0;
+  float ka = 0.4;
 
-  	float kd = 1.0;
-  	float ka = 0.4;
+  vec3 ambient = ka * surfaceColor;
+  vec3 diffuse = kd * surfaceColor * max(0.0, dot(vNormal, light));
 
-  	vec3 ambient = ka * surfaceColor;
-  	vec3 diffuse = kd * surfaceColor * max(0.0, dot(vNormal, light));
+  vec3 finalColor = ambient+diffuse;
 
-  	vec3 finalColor = ambient+diffuse;
+  finalColor=mix(finalColor, snowColor, smoothstep(7.0, 15.0, noise));   // Snow on peaks
+  finalColor=mix(sandColor, finalColor, smoothstep(0.0, 3.0, noise));    // Sandy shores
+  finalColor=finalColor-0.04*pnoise(1.0*pos, vec3(10.0));                // Low freq noise
 
-  	finalColor=mix(finalColor, snowColor, smoothstep(7.0, 15.0, noise));   // Snow on peaks
-    finalColor=mix(sandColor, finalColor, smoothstep(0.0, 3.0, noise));    // Sandy shores
-  	finalColor=finalColor-0.04*pnoise(1.0*pos, vec3(10.0));                // Low freq noise
-
-  	gl_FragColor = vec4(finalColor, 1.0);  
+  gl_FragColor = vec4(finalColor, 1.0);  
   	
 }
 
