@@ -205,14 +205,29 @@ function displayGUI(){
 
     }
     
-    var planetColor = gui.addColor(parameters, 'surClr').name('Surface Color');
-    var mountainFrequency = gui.add(parameters, 'mountFreq').min(0.02).max(0.1).step(0.001).name('Mount freq');
-    var mountainAmplitide = gui.add(parameters, 'mountAmp').min(2.0).max(30).step(0.01).name('Mount amp');
-    var temperature = gui.add(parameters, 'avgTemp').min(-12.0).max(35).step(0.01).name('Av. Temperature');
-    var oceanColor = gui.addColor(parameters, 'oceColor').name('Ocean Color');
-    var humidity = gui.add(parameters, 'humidity').min(-1.0).max(1.0).step(0.001).name('Humidity');
-    var cloudHeight = gui.add(parameters, 'cloudHeight').min(6.0).max(20.0).step(0.001).name('Cloud Height');
-    var shoreColor = gui.addColor(parameters, 'shoColor').name('Sand Color');
+    
+    // WeatherControls
+    var weatherFolder = gui.addFolder('Weather');
+    weatherFolder.open();
+    
+    var temperature = weatherFolder.add(parameters, 'avgTemp').min(-12.0).max(35).step(0.01).name('Av. Temperature');
+    var humidity = weatherFolder.add(parameters, 'humidity').min(-1.0).max(1.0).step(0.001).name('Humidity');
+    var cloudHeight = weatherFolder.add(parameters, 'cloudHeight').min(6.0).max(20.0).step(0.001).name('Cloud Height');
+
+    // Surface controls
+    var surfFolder = gui.addFolder('Surface');
+    surfFolder.open();
+
+    var planetColor = surfFolder.addColor(parameters, 'surClr').name('Surface Color');
+    var mountainFrequency = surfFolder.add(parameters, 'mountFreq').min(0.02).max(0.1).step(0.001).name('Mount freq');
+    var mountainAmplitide = surfFolder.add(parameters, 'mountAmp').min(2.0).max(30).step(0.01).name('Mount amp');
+
+    // Ocean controls
+    var oceFolder = gui.addFolder('Ocean');
+    oceFolder.open();
+
+    var oceanColor = oceFolder.addColor(parameters, 'oceColor').name('Ocean Color');
+    var shoreColor = oceFolder.addColor(parameters, 'shoColor').name('Sand Color');
 
 
 

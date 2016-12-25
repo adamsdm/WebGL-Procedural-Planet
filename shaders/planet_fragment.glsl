@@ -21,7 +21,7 @@ void main() {
   float ka = 0.4;
 
     
-  float shoreLineTop = mountAmp/5.0+avTemp-7.0;
+  float shoreLineTop = mountAmp/3.0+avTemp-7.0;
 
   shoreLineTop = max(shoreLineTop, 3.0);
 

@@ -42,7 +42,7 @@ void main() {
 
     // add cellular noise to iceColor to simulate ice floe
     vec2 cellNoise =  cellular(0.2*pos);
-    float polePosition =step(pEdNoise+planetRadius-poleSize-80.0, abs(pos.y));
+    float polePosition = step(pEdNoise+planetRadius-poleSize-80.0, abs(pos.y));
     float iceGapSize= (avTemp+12.0)*0.02;
 
 
