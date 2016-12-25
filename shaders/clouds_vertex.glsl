@@ -3,10 +3,9 @@ varying vec3 vNormal;
 varying vec3 pos;
 
 uniform float time;
+uniform float atmosHeight;
 
 void main() {
-
-	float atmosHeight = 12.0;
 
 	vNormal = normal;
 

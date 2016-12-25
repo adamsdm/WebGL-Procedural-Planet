@@ -4,6 +4,10 @@ var planetShader;
 var startTime = new Date().getTime();
 var runTime = 0;
 
+const RADIUS = 100;
+const SEGMENTS = 128;
+const RINGS = 128;
+
 scene = new THREE.Scene();
 renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -37,7 +41,9 @@ var sharedUniforms = {
     lightPos:       {type: 'v3',    value: light.position},
     cameraPos:      {type: 'v3',    value: camera.position},
     oceanLevel:     {type: 'f',     value: 1.0},
-    time:           {type: 'f',     value: 0.0}
+    time:           {type: 'f',     value: 0.0},
+    avTemp:         {type: 'f',     value: 7.0},
+    planetRadius:   {type: 'f',     value: RADIUS}
 }
 
 // combines shared uniforms with new and store in new object
@@ -52,7 +58,14 @@ var planetUniforms = Object.assign({}, sharedUniforms,
 
 var oceanUniforms = Object.assign({}, sharedUniforms, 
     {
-        oceanLevel:     {type: 'f', value: 1.0},
+        oceanColor:     {type: 'v3',    value: [0.0, 0.0, 1.0] } 
+    }
+);
+
+var cloudUniforms = Object.assign({}, sharedUniforms, 
+    {
+        humidity:       {type: 'f',     value: -0.2},
+        atmosHeight:    {type: 'f',     value: 12.0}
     }
 );
 
@@ -69,11 +82,6 @@ displayGUI();
 
 
 function initWorld(){
-
-    // Set up the sphere vars
-    const RADIUS = 100;
-    const SEGMENTS = 128;
-    const RINGS = 128;
 
     const planet = new THREE.Mesh(
       new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), planetShader);
@@ -140,6 +148,8 @@ function loadShaders(){
             var cloudsFShader = data.cloudsShader.fragment;
 
             var classicNoise3D = data.perlinNoise.vertex;
+            var cellNoise3D = data.cellularNoise.vertex;
+
 
             planetShader = new THREE.ShaderMaterial({
                 uniforms: planetUniforms,
@@ -150,15 +160,16 @@ function loadShaders(){
 
             oceanShader = new THREE.ShaderMaterial({
                 uniforms: oceanUniforms,
-                vertexShader:   classicNoise3D + oceanVShader,
-                fragmentShader: classicNoise3D + oceanFShader,
+                vertexShader:   classicNoise3D + cellNoise3D + oceanVShader,
+                fragmentShader: classicNoise3D + cellNoise3D + oceanFShader,
                 transparent: true,
             });
 
             cloudsShader = new THREE.ShaderMaterial({
-                uniforms: oceanUniforms,
+                uniforms: cloudUniforms,
                 vertexShader:   classicNoise3D + cloudsVShader,
                 fragmentShader: classicNoise3D + cloudsFShader,
+                side: THREE.DoubleSide,
                 transparent: true,
             });
 
@@ -180,20 +191,43 @@ function displayGUI(){
                  planetUniforms.surfaceColor.value[1]*255,
                  planetUniforms.surfaceColor.value[2]*255 ],
         mountFreq: planetUniforms.mountFreq.value,
-        mountAmp: planetUniforms.mountAmp.value,
+        mountAmp:  planetUniforms.mountAmp.value,
+        avgTemp:   sharedUniforms.avTemp.value,
+        oceColor: [oceanUniforms.oceanColor.value[0]*255,     //surface color, *255 because dat.gui colors in color range 0-255,
+                   oceanUniforms.oceanColor.value[1]*255,
+                   oceanUniforms.oceanColor.value[2]*255 ],
+        humidity: cloudUniforms.humidity.value,
+        cloudHeight: cloudUniforms.atmosHeight.value,
+        shoColor: [planetUniforms.shoreColor.value[0]*255,     //surface color, *255 because dat.gui colors in color range 0-255,
+                   planetUniforms.shoreColor.value[1]*255,
+                   planetUniforms.shoreColor.value[2]*255 ],        
 
 
     }
     
     var planetColor = gui.addColor(parameters, 'surClr').name('Surface Color');
-    var mountainFrequency = gui.add(parameters, 'mountFreq').min(0.02).max(0.05).step(0.001).name('Mount freq');
+    var mountainFrequency = gui.add(parameters, 'mountFreq').min(0.02).max(0.1).step(0.001).name('Mount freq');
     var mountainAmplitide = gui.add(parameters, 'mountAmp').min(2.0).max(30).step(0.01).name('Mount amp');
+    var temperature = gui.add(parameters, 'avgTemp').min(-12.0).max(35).step(0.01).name('Av. Temperature');
+    var oceanColor = gui.addColor(parameters, 'oceColor').name('Ocean Color');
+    var humidity = gui.add(parameters, 'humidity').min(-1.0).max(1.0).step(0.001).name('Humidity');
+    var cloudHeight = gui.add(parameters, 'cloudHeight').min(6.0).max(20.0).step(0.001).name('Cloud Height');
+    var shoreColor = gui.addColor(parameters, 'shoColor').name('Sand Color');
+
+
+
 
 
     planetColor.onChange(function(jar){ 
         planetUniforms.surfaceColor.value[0] = jar[0]/255;
         planetUniforms.surfaceColor.value[1] = jar[1]/255;
         planetUniforms.surfaceColor.value[2] = jar[2]/255;
+    })
+
+    shoreColor.onChange(function(jar){ 
+        planetUniforms.shoreColor.value[0] = jar[0]/255;
+        planetUniforms.shoreColor.value[1] = jar[1]/255;
+        planetUniforms.shoreColor.value[2] = jar[2]/255;
     })
 
     mountainFrequency.onChange(function(jar){ 
@@ -203,6 +237,18 @@ function displayGUI(){
     mountainAmplitide.onChange(function(jar){ 
         planetUniforms.mountAmp.value = jar;
     })
+
+    temperature.onChange(function(jar){ sharedUniforms.avTemp.value = jar; })
+
+    oceanColor.onChange(function(jar){ 
+        oceanUniforms.oceanColor.value[0] = jar[0]/255;
+        oceanUniforms.oceanColor.value[1] = jar[1]/255;
+        oceanUniforms.oceanColor.value[2] = jar[2]/255;
+    })
+
+    humidity.onChange(function(jar){ cloudUniforms.humidity.value = jar; })
+    cloudHeight.onChange(function(jar){ cloudUniforms.atmosHeight.value = jar; })
+
 }  
 
 
