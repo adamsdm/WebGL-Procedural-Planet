@@ -10,6 +10,8 @@
 //               https://github.com/stegu/webgl-noise
 // 
 
+
+/*
 vec3 mod289(vec3 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
@@ -26,6 +28,7 @@ vec4 taylorInvSqrt(vec4 r)
 {
   return 1.79284291400159 - 0.85373472095314 * r;
 }
+*/
 
 float snoise(vec3 v, out vec3 gradient)
 {

@@ -28,8 +28,8 @@ void main() {
 
   vec3 finalColor=mix(sandColor, surfaceColor, smoothstep(0.0, shoreLineTop, noise));    // Sandy shores
 
-  finalColor=mix(finalColor, snowColor, smoothstep(avTemp, avTemp+7.0, noise));   // Snow on peaks
-  finalColor=finalColor-0.04*pnoise(1.0*pos, vec3(10.0));                // Low freq noise
+  finalColor=mix(finalColor, snowColor, smoothstep(avTemp+2.0, avTemp+7.0, noise));   // Snow on peaks
+  finalColor=finalColor-0.04*pnoise(1.0*pos, vec3(10.0));                   // Low freq noise
 
   vec3 ambient = ka * finalColor;
   vec3 diffuse = kd * finalColor * max(0.0, dot(vNormal, light));

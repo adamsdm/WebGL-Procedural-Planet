@@ -3,6 +3,8 @@ var camera, controls, scene, renderer;
 var planetShader;
 var startTime = new Date().getTime();
 var runTime = 0;
+var vhelper1; 
+
 
 const RADIUS = 100;
 const SEGMENTS = 128;
@@ -51,7 +53,7 @@ var planetUniforms = Object.assign({}, sharedUniforms,
     {
         surfaceColor:   {type: 'v3',    value: [0, 0.4, 0.1] },
         shoreColor:     {type: 'v3',    value: [0.95, 0.67, 0.26] },
-        mountFreq:      {type: 'f',     value: 0.04 },
+        mountFreq:      {type: 'f',     value: 0.02 },
         mountAmp:       {type: 'f',     value: 15.0 } 
     }
 );
@@ -85,17 +87,17 @@ function initWorld(){
 
     const planet = new THREE.Mesh(
       new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), planetShader);
+    
     scene.add(planet);
 
     //Ocean 
-    
     const ocean = new THREE.Mesh(
       new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), oceanShader);
     scene.add(ocean);
 
     const atmos = new THREE.Mesh(
       new THREE.SphereGeometry(RADIUS, SEGMENTS,RINGS), cloudsShader);
-    scene.add(atmos);
+    //scene.add(atmos);
 
 
     // Stars
@@ -147,21 +149,22 @@ function loadShaders(){
             var cloudsVShader = data.cloudsShader.vertex;
             var cloudsFShader = data.cloudsShader.fragment;
 
+            var noise3Dgrad = data.noise3Dgrad.vertex;
             var classicNoise3D = data.perlinNoise.vertex;
             var cellNoise3D = data.cellularNoise.vertex;
 
 
             planetShader = new THREE.ShaderMaterial({
                 uniforms: planetUniforms,
-                vertexShader:   classicNoise3D + planetVShader,
-                fragmentShader: classicNoise3D + planetFShader,
+                vertexShader:   classicNoise3D + noise3Dgrad + planetVShader,
+                fragmentShader: classicNoise3D + noise3Dgrad + planetFShader,
             });
 
 
             oceanShader = new THREE.ShaderMaterial({
                 uniforms: oceanUniforms,
-                vertexShader:   classicNoise3D + cellNoise3D + oceanVShader,
-                fragmentShader: classicNoise3D + cellNoise3D + oceanFShader,
+                vertexShader:   classicNoise3D + noise3Dgrad + cellNoise3D + oceanVShader,
+                fragmentShader: classicNoise3D + noise3Dgrad + cellNoise3D + oceanFShader,
                 transparent: true,
             });
 
@@ -219,7 +222,7 @@ function displayGUI(){
     surfFolder.open();
 
     var planetColor = surfFolder.addColor(parameters, 'surClr').name('Surface Color');
-    var mountainFrequency = surfFolder.add(parameters, 'mountFreq').min(0.02).max(0.1).step(0.001).name('Mount freq');
+    var mountainFrequency = surfFolder.add(parameters, 'mountFreq').min(0.01).max(0.03).step(0.001).name('Mount freq');
     var mountainAmplitide = surfFolder.add(parameters, 'mountAmp').min(2.0).max(30).step(0.01).name('Mount amp');
 
     // Ocean controls
@@ -285,5 +288,6 @@ function animate() {
 
 
 function render() {
+
     renderer.render( scene, camera );
 }
