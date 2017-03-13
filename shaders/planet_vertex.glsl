@@ -11,7 +11,7 @@ void main() {
 
     vec3 grad = vec3(0.0);
 	
-    noise = mountAmp*snoise(mountFreq*position+vec3(0.2, 0.34, 0.52), grad);
+    noise = mountAmp*snoise(mountFreq*position+vec3(0.4, 0.34, 0.52), grad);
     grad*=mountFreq;
 
     // Apply elevation in normal direction
